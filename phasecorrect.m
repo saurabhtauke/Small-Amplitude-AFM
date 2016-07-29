@@ -9,6 +9,9 @@ opamp_gain = 12;
 scanner_calib = 22.27;              % nm/V
 lockin_sens = 100;                  % in mv
 
+cantilever_stiffness = 0.8          % in N/m
+free_amplitude = 1.7                % in Amstrongs
+drive_frequency = 2000              % in Hz
 
 npoints = 80;                       % uptil what point do we need to correct the phase data
 phasecutoff = -0.139;               % the cutoff point below which the phase would be take to the positive side
@@ -72,13 +75,13 @@ phitwo = asin(y./amplitude);
 %% Stiffness and Damping calculation   
 
 
-stiffness = 0.8* ((1.7./amplitude).*(cos(phase)) -1); 
+stiffness = cantilever_stiffness* ((free_amplitude./amplitude).*(cos(phase)) -1); 
 
-damping = 0.8 * ((1.7./(amplitude.*2000)) .* (sin(phase))) ;
+damping = cantilever_stiffness * ((free_amplitude./(amplitude.*(drive_frequency.*drive_frequency))) .* (sin(phase))) ;
 
 relaxation_time = damping./stiffness;
 
-stiff2 = (0.8*1.7).*(x./(amplitude.*amplitude));   % calculated by x/A^2
+stiff2 = (cantilever_stiffness*free_amplitude).*(x./(amplitude.*amplitude));   % calculated by x/A^2
 
 %% Plotting
 
@@ -107,4 +110,4 @@ title('DC')
 
 subplot(3,2,6)
 plot(z_dist,relaxation_time)
-title('relaxation time')
+title('Relaxation time')
