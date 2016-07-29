@@ -6,37 +6,48 @@ clear all
 
 Int_sensitivity = 40;           	% in mv/A
 opamp_gain = 12;
-scanner_calib = 22.27;
+scanner_calib = 22.27;              % nm/V
+lockin_sens = 100;                  % in mv
 
-npoints = 80;                      % uptil what point do we need to correct the phase data
+
+npoints = 80;                       % uptil what point do we need to correct the phase data
 phasecutoff = -0.139;               % the cutoff point below which the phase would be take to the positive side
-
-%% data allocation
-
-a= importdata('q.txt');
-b = a.('data');
-
-z = b(:,1);
-x = b(:,7)*(10/Int_sensitivity);
-y = b(:,8)*(10/Int_sensitivity);
-amplitude = b(:,2)*(10/Int_sensitivity);
-phi = b(:,3);                        % Third column is the Phase.
 
 %% Removing the approach values and rescaling the z_voltage values and converting to nanometers
 
 % trimm all the arrays to remove approach z values.
 
+a= importdata('q.txt');
+b = a.('data');
 
-% !!! FIRST REMOVE THE APPROACH Z VALUES !!!
-% !!! FIRST REMOVE THE APPROACH Z VALUES !!!
-% !!! FIRST REMOVE THE APPROACH Z VALUES !!!
-% !!! FIRST REMOVE THE APPROACH Z VALUES !!!
-% !!! FIRST REMOVE THE APPROACH Z VALUES !!!
-% !!! FIRST REMOVE THE APPROACH Z VALUES !!!
+z_volt = b(:,1);
+totlength = length(z_volt);
 
-z_dist = z * scanner_calib * opamp_gain;
-start_point = z_dist(1);
-z_dist = z_dist - start_point ;
+count = 0;
+
+for i = 1: (totlength-1)
+    if (z_volt(i) > z_volt(i+1))
+        count = count+1;
+    end
+end
+
+% count;
+% plot(z_volt)
+
+for i=1:count
+    b(1,:) = [];
+end
+
+%length(b)
+
+%% data allocation
+
+z = b(:,1);
+x = b(:,7)*(lockin_sens/(Int_sensitivity*10));
+y = b(:,8)*(lockin_sens/(Int_sensitivity*10));
+amplitude = b(:,2)*(lockin_sens/(Int_sensitivity*10));
+phi = b(:,3);                        % Third column is the Phase.
+DC = b(:,4);
 
 
 %% The phase correction part
@@ -52,22 +63,47 @@ phase = phi;
 % end
 
 %phase;
-plot (phase)
+%plot (phase)
 
 phione = acos(x./amplitude);            
 phitwo = asin(y./amplitude);
 
-%% Stiffness and Damping calculation   =1.987*(((1.163114/Q3)*V3)-1)
-
-t1 = 1.7./amplitude;
-t2 = cos(phase);
-t3 = t2.*t1;
-stiffness = 0.8*(t3-1);
+%% Stiffness and Damping calculation   
 
 
-%(1.987*t4)*t5
+stiffness = 0.8* ((1.7./amplitude).*(cos(phase)) -1); 
 
-t4 = 1.7./(amplitude.*2000);
-t5 = sin(phase);
-t6 = t4.*t5 ;
-damping = 0.8 * t6 ;
+damping = 0.8 * ((1.7./(amplitude.*2000)) .* (sin(phase))) ;
+
+relaxation_time = damping./stiffness;
+
+stiff2 = (0.8*1.7).*(x./(amplitude.*amplitude));   % calculated by x/A^2
+
+%% Plotting
+
+subplot(3,2,1)
+plot(z,amplitude)
+title('Amplitude')
+
+
+subplot(3,2,2)
+plot(z,phase)
+title('Phase')
+
+
+subplot(3,2,3)
+plot(z,stiffness)
+title('Stiffness')
+
+
+subplot(3,2,4)
+plot(z,damping)
+title('Damping')
+
+subplot(3,2,5)
+plot(z,DC)
+title('DC')
+
+subplot(3,2,6)
+plot(z,relaxation_time)
+title('relaxation time')
