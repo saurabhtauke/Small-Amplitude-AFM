@@ -77,7 +77,7 @@ phitwo = asin(y./amplitude);
 
 stiffness = cantilever_stiffness* ((free_amplitude./amplitude).*(cos(phase)) -1); 
 
-damping = cantilever_stiffness * ((free_amplitude./(amplitude.*(drive_frequency.*drive_frequency))) .* (sin(phase))) ;
+damping = cantilever_stiffness * ((free_amplitude./(amplitude.*(drive_frequency))) .* (sin(phase))) ;
 
 relaxation_time = damping./stiffness;
 
