@@ -20,19 +20,19 @@ phasecutoff = -0.139;               % the cutoff point below which the phase wou
 a= importdata('q.txt');
 b = a.('data');
 
-z_volt = b(:,1);
-totlength = length(z_volt);
+z = b(:,1);
+totlength = length(z);
 
 count = 0;
 
 for i = 1: (totlength-1)
-    if (z_volt(i) > z_volt(i+1))
+    if (z(i) > z(i+1))
         count = count+1;
     end
 end
 
 % count;
-% plot(z_volt)
+% plot(z)
 
 for i=1:count
     b(1,:) = [];
@@ -42,13 +42,14 @@ end
 
 %% data allocation
 
-z = b(:,1);
+z_volt = b(:,1);
 x = b(:,7)*(lockin_sens/(Int_sensitivity*10));
 y = b(:,8)*(lockin_sens/(Int_sensitivity*10));
 amplitude = b(:,2)*(lockin_sens/(Int_sensitivity*10));
 phi = b(:,3);                        % Third column is the Phase.
 DC = b(:,4);
 
+z_dist = (z_volt - min(z_volt) )* (scanner_calib * opamp_gain) ; 
 
 %% The phase correction part
 %plot (phi)                      % is the phase column in the consolidated data sheet
@@ -82,28 +83,28 @@ stiff2 = (0.8*1.7).*(x./(amplitude.*amplitude));   % calculated by x/A^2
 %% Plotting
 
 subplot(3,2,1)
-plot(z,amplitude)
+plot(z_dist,amplitude)
 title('Amplitude')
 
 
 subplot(3,2,2)
-plot(z,phase)
+plot(z_dist,phase)
 title('Phase')
 
 
 subplot(3,2,3)
-plot(z,stiffness)
+plot(z_dist,stiffness)
 title('Stiffness')
 
 
 subplot(3,2,4)
-plot(z,damping)
+plot(z_dist,damping)
 title('Damping')
 
 subplot(3,2,5)
-plot(z,DC)
+plot(z_dist,DC)
 title('DC')
 
 subplot(3,2,6)
-plot(z,relaxation_time)
+plot(z_dist,relaxation_time)
 title('relaxation time')
