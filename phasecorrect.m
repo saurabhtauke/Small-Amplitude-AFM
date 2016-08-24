@@ -15,6 +15,9 @@ drive_frequency = 2000;            % in Hz
 
 npoints = 80;                       % uptil what point do we need to correct the phase data
 phasecutoff = -0.139;               % the cutoff point below which the phase would be take to the positive side
+datacutoff =115;                    % to trim the redundant part in free amplitude 
+
+
 
 %% Removing the approach values and rescaling the z_voltage values and converting to nanometers
 
@@ -26,23 +29,23 @@ b = a.('data');
 z = b(:,1);
 totlength = length(z);
 
-count = 0;
+approach_count = 0;
 
 for i = 1: (totlength-1)
     if (z(i) > z(i+1))
-        count = count+1;
+        approach_count = approach_count+1;
     end
 end
 
 % count;
 % plot(z)
 
-for i=1:count
+for i=1:approach_count
     b(1,:) = [];
 end
 
-for i = 115:length(b)
-    b(115,:) = [];
+for i = datacutoff:length(b)
+    b(datacutoff,:) = [];
 end
 
 %length(b)
