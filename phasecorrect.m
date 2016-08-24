@@ -9,9 +9,9 @@ opamp_gain = 12;
 scanner_calib = 22.27;              % nm/V
 lockin_sens = 100;                  % in mv
 
-cantilever_stiffness = 0.8          % in N/m
-free_amplitude = 1.7                % in Amstrongs
-drive_frequency = 2000              % in Hz
+cantilever_stiffness = 0.8;          % in N/m
+free_amplitude = 1.7;                % in Amstrongs
+drive_frequency = 2000;            % in Hz
 
 npoints = 80;                       % uptil what point do we need to correct the phase data
 phasecutoff = -0.139;               % the cutoff point below which the phase would be take to the positive side
@@ -39,6 +39,10 @@ end
 
 for i=1:count
     b(1,:) = [];
+end
+
+for i = 115:length(b)
+    b(115,:) = [];
 end
 
 %length(b)
@@ -83,31 +87,47 @@ relaxation_time = damping./stiffness;
 
 stiff2 = (cantilever_stiffness*free_amplitude).*(x./(amplitude.*amplitude));   % calculated by x/A^2
 
+phase = phase .* (180/3.14152); %converted phase to degrees
+
 %% Plotting
 
 subplot(3,2,1)
-plot(z_dist,amplitude)
+plot(z_dist,amplitude,'o-b')
 title('Amplitude')
+xlabel('Distance(nm)')  
+ylabel('Amplitude(Å)')
 
 
 subplot(3,2,2)
-plot(z_dist,phase)
+plot(z_dist,phase,'o-b')
 title('Phase')
+xlabel('Distance(nm)')
+ylabel('Phase(degrees)')
 
 
 subplot(3,2,3)
-plot(z_dist,stiffness)
+plot(z_dist,stiffness,'o-b')
 title('Stiffness')
+xlabel('Distance(nm)') 
+ylabel('Stiffness(N/m)')
 
 
 subplot(3,2,4)
-plot(z_dist,damping)
+plot(z_dist,damping,'o-b')
 title('Damping')
+xlabel('Distance(nm)')
+ylabel('Damping(Ns/m)')
+
 
 subplot(3,2,5)
-plot(z_dist,DC)
+plot(z_dist,DC,'o-b')
 title('DC')
+xlabel('Distance(nm)')
+ylabel('DC Deflection(Volts)')
+
 
 subplot(3,2,6)
-plot(z_dist,relaxation_time)
-title('Relaxation time')
+plot(z_dist,relaxation_time,'o-b')
+title('Retardation time')
+xlabel('Distance(nm)')
+ylabel('Retardation Time(s)')
