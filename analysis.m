@@ -21,7 +21,7 @@ density = 2329;                     %density of material of cantilever
 area = 8750e-12;                        %surface area of cantilever
 cantilever_length = 250e-006;      %length of cantilver SI units
 
-
+offset_phase = -10*pi/180;
 %% Removing the approach values and rescaling the z_voltage values and converting to nanometers
 
 % trimm all the arrays to remove approach z values.
@@ -47,9 +47,9 @@ for i=1:approach_count
     b(1,:) = [];
 end
 
-for i = datacutoff:length(b)
-    b(datacutoff,:) = [];
-end
+% for i = datacutoff:length(b)
+%     b(datacutoff,:) = [];
+% end
 
 %length(b)
 
@@ -58,31 +58,19 @@ end
 z_volt = b(:,1);
 x = b(:,7)*(lockin_sens/(Int_sensitivity*10));
 y = b(:,8)*(lockin_sens/(Int_sensitivity*10));
+
 amplitude = b(:,2)*(lockin_sens/(Int_sensitivity*10));
-phi = b(:,3);                        % Third column is the Phase.
+phase = b(:,3);                        % Third column is the Phase.
 DC = b(:,4);
+
+% true_x = x;
+% true_y = y;
+
+ true_x = x/cos(offset_phase);
+ true_y = y - y*sin(offset_phase);
 
 z_dist = (z_volt - min(z_volt) )* (scanner_calib * opamp_gain) ; 
 
-%% The phase correction part
-% plot (phi)                      % is the phase column in the consolidated data sheet
-% 
-phase = phi;
-phase = phase - (min(phase)) ;
-% 
-% 
-% for i = 1:npoints
-%     
-%     if (phase(i) < phasecutoff )
-%         phase(i)= phase(i) + 1;
-%     end
-% end
-% 
-% phase;
-% plot (phase)
-% 
-% phione = acos(x./amplitude);            
-% phitwo = asin(y./amplitude);
 
 %% Stiffness and Damping calculation   
 
@@ -95,19 +83,20 @@ damping = damping- min(damping);
 
 
 
-stiffx = double((-1)*(((0.666*cantilever_stiffness * cantilever_length).*x./free_amplitude)- 0.333*density*10*area*cantilever_length*drive_frequency*drive_frequency));
-stiffx = stiffx - min(stiffx);
+stiffx = double((-1)*(((0.666*cantilever_stiffness * cantilever_length).*true_x./free_amplitude)- 0.333*density*10*area*cantilever_length*drive_frequency*drive_frequency));
+%stiffx = stiffx - min(stiffx);
 
 lever_damping = 10e-006;
-dampy = double(0.666*cantilever_stiffness*cantilever_length.*y./(free_amplitude.*drive_frequency)- (0.333*lever_damping*cantilever_length));
-dampy = dampy- min(dampy);
+dampy = double(0.666*cantilever_stiffness*cantilever_length.*true_y./(free_amplitude.*drive_frequency));%- (0.333*lever_damping*cantilever_length));
+%dampy = dampy- min(dampy);
 
 retardation_time = double(dampy./(stiffx));
 
 
-phase = phase .* (180/pi); %converted phase to degrees
 
 %% Plotting
+
+phase = phase .* (180/pi); %converted phase to degrees
 
 subplot(3,3,1)
 plot(z_dist,amplitude,'o-b')
@@ -117,14 +106,14 @@ ylabel('Amplitude(Å)')
 
 
 subplot(3,3,2)
-plot(z_dist,x,'o-b')
+plot(z_dist,true_x,'o-b')
 title('x')
 xlabel('Distance(nm)')
 ylabel('x')
 
 
 subplot(3,3,3)
-plot(z_dist,y,'o-b')
+plot(z_dist,true_y,'o-b')
 title('y')
 xlabel('Distance(nm)')
 ylabel('y')
@@ -152,7 +141,7 @@ ylabel('Damping(Ns/m)')
 
 
 subplot(3,3,7)
-plot(z_dist,retardation_time,'o-b')
+plot(z_dist,DC,'o-b')
 title('Retardation Time')
 xlabel('Distance(nm)')
 ylabel('Retardation Time(s)')
@@ -170,5 +159,4 @@ plot(z_dist,dampy,'o-b')
 title('dampy')
 xlabel('Distance(nm)')
 ylabel('dampy')
-
 
