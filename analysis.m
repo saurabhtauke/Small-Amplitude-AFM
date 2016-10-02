@@ -21,7 +21,7 @@ density = 2329;                     %density of material of cantilever
 area = 8750e-12;                        %surface area of cantilever
 cantilever_length = 250e-006;      %length of cantilver SI units
 
-offset_phase = -10*pi/180;
+
 %% Removing the approach values and rescaling the z_voltage values and converting to nanometers
 
 % trimm all the arrays to remove approach z values.
@@ -63,11 +63,23 @@ amplitude = b(:,2)*(lockin_sens/(Int_sensitivity*10));
 phase = b(:,3);                        % Third column is the Phase.
 DC = b(:,4);
 
-% true_x = x;
-% true_y = y;
+offset_phase = (min(phase))*pi/180;
 
- true_x = x/cos(offset_phase);
- true_y = y - y*sin(offset_phase);
+
+n= zeros(length(phase),1);
+for i = 1:length(phase)
+    if phase(i)< 0
+        n(i)=-1;
+    else 
+        n(i)=1;
+    end
+end
+
+% true_x = x;
+ true_y = y - min(y);
+
+ true_x = real(x/cos(offset_phase));
+ %true_y =real(n.* sqrt((-1*(x.^2)*((tan(offset_phase))^2))+ (y.^2)));
 
 z_dist = (z_volt - min(z_volt) )* (scanner_calib * opamp_gain) ; 
 
@@ -97,6 +109,18 @@ retardation_time = double(dampy./(stiffx));
 %% Plotting
 
 phase = phase .* (180/pi); %converted phase to degrees
+
+
+% hold on
+% yyaxis left
+% plot(z_dist,amplitude)
+% 
+% yyaxis right
+% plot(z_dist,phase)
+% 
+% % plot(z_dist,true_x)
+% % plot(z_dist,true_y)
+% hold off
 
 subplot(3,3,1)
 plot(z_dist,amplitude,'o-b')
