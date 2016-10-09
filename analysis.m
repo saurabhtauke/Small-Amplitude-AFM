@@ -63,17 +63,17 @@ amplitude = b(:,2)*(lockin_sens/(Int_sensitivity*10));
 phase = b(:,3);                        % Third column is the Phase.
 DC = b(:,4);
 
-offset_phase = (min(phase))*pi/180;
+offset_phase = (min(phase));
 
 
-n= zeros(length(phase),1);
-for i = 1:length(phase)
-    if phase(i)< 0
-        n(i)=-1;
-    else 
-        n(i)=1;
-    end
-end
+%n= zeros(length(phase),1);
+%for i = 1:length(phase)
+%    if phase(i)< 0
+%        n(i)=-1;
+%    else 
+%        n(i)=1;
+%    end
+%end
 
 % true_x = x;
  true_y = y - min(y);
