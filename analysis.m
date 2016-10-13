@@ -78,7 +78,7 @@ end
 % true_x = (x);
 true_x = (x)/cos(offset_phase);
 
-true_y = (y)- min(y);
+true_y = (y);- min(y);
 
 %  true_x = real(x/cos(offset_phase));
 %   true_y =real(sqrt((-1*(x.^2)*((tan(offset_phase))^2))+ (y.^2)));
@@ -100,10 +100,10 @@ damping = double(cantilever_stiffness * (1.0) * ((free_amplitude./(amplitude.*(d
 
 
 stiffx = double((-1)*(((0.666*cantilever_stiffness * cantilever_length).*true_x./free_amplitude)- 0.333*density*10*area*cantilever_length*drive_frequency*drive_frequency));
- stiffx = stiffx - min(stiffx);
+stiffx = stiffx - min(stiffx);
 
 lever_damping = 10e-006;
-dampy = double(0.666*cantilever_stiffness*cantilever_length.*true_y./(free_amplitude.*drive_frequency));%- (0.333*lever_damping*cantilever_length));
+dampy = double(0.666*cantilever_stiffness*cantilever_length.*true_y./(free_amplitude.*drive_frequency))- (0.333*lever_damping*cantilever_length);
 dampy = dampy- min(dampy);
 
 retardation_time = double(dampy./(stiffx));
