@@ -10,8 +10,8 @@ scanner_calib = 22.27;              % nm/V
 lockin_sens = 100;                  % in mv
 
 cantilever_stiffness = 0.8486;          % in N/m
-free_amplitude = 1.1;                % in Amstrongs
-drive_frequency = 2000*2*pi;            % in Hz
+free_amplitude = 1.7;                % in Amstrongs
+drive_frequency = 2200*2*pi;            % in Hz
 
 npoints = 80;                       % uptil what point do we need to correct the phase data
 phasecutoff = -0.139;               % the cutoff point below which the phase would be take to the positive side
@@ -43,9 +43,10 @@ end
 % count;
 % plot(z)
 
-for i=1:approach_count
-    b(1,:) = [];
-end
+% for i=1:approach_count
+%     b(1,:) = [];
+%     
+% end
 
 for i = datacutoff:length(b)
     b(datacutoff,:) = [];
@@ -62,6 +63,7 @@ y = b(:,8)*(lockin_sens/(Int_sensitivity*10));
 amplitude = b(:,2)*(lockin_sens/(Int_sensitivity*10));
 phase = b(:,3);                        % Third column is the Phase.
 DC = b(:,4);
+DC = DC - (min(DC));
 
 offset_phase = (min(phase));
 new_phase = 30*(pi/180);
@@ -78,14 +80,17 @@ end
 % true_x = (x);
 true_x = (x)/cos(offset_phase);
 
-true_y = (y);- min(y);
+true_y = ((y));
 
 %  true_x = real(x/cos(offset_phase));
 %   true_y =real(sqrt((-1*(x.^2)*((tan(offset_phase))^2))+ (y.^2)));
  %true_y = 
 %  %true_y = true_y- min(true_y);
 
-z_dist = (z_volt - min(z_volt) )* (scanner_calib * opamp_gain) ; 
+z_dist = (z_volt - z_volt(approach_count+1) )* (scanner_calib * opamp_gain) ; 
+for i=1:approach_count
+     z_dist(i) = -z_dist(i);     
+end
 
 
 %% Stiffness and Damping calculation   
@@ -104,15 +109,31 @@ stiffx = stiffx - min(stiffx);
 
 lever_damping = 10e-006;
 dampy = double(0.666*cantilever_stiffness*cantilever_length.*true_y./(free_amplitude.*drive_frequency))- (0.333*lever_damping*cantilever_length);
-dampy = dampy- min(dampy);
+%dampy = dampy- min(dampy);
 
-retardation_time = double(dampy./(stiffx));
+relaxation_time = double(dampy./(stiffx));
 
 rsq = true_x.^2 + true_y.^2;
 asq = amplitude.^2;
 
+force = DC * cantilever_stiffness / (Int_sensitivity*10000000);
+force = 100-force;
+f_zero = force(length(force)-5);
+force = force- f_zero;
 
 %% Plotting
+'please refer to code for plot_matrix labels'
+plot_matrix = zeros(length(z_dist),10);
+plot_matrix(:,1) = z_dist;
+plot_matrix(:,2) = amplitude;
+plot_matrix(:,3) = phase;
+plot_matrix(:,4) = true_x;
+plot_matrix(:,5) = true_y;
+plot_matrix(:,6) = DC;
+plot_matrix(:,7) = stiffx;
+plot_matrix(:,8) = dampy;
+plot_matrix(:,9) = force;
+plot_matrix(:,10) = relaxation_time;
 
 phase = phase .* (180/pi); %converted phase to degrees
 
